@@ -96,7 +96,7 @@ public class SyntaxTree {
                         prevExpressions.push(new Node(operator, lhs, rhs));
                     }
 
-                    if (prevOps.peek().type != Token.TokenType.OpeningBracket)
+                    if (prevOps.isEmpty())
                     {
                         throw new IllegalArgumentException("Unequal amount of opening and closing brackets");
                     }
