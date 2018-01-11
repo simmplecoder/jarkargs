@@ -13,13 +13,13 @@ public class SyntaxTree {
         Node right;
         int depth;
 
-        public Node(Token tk)
+        Node(Token tk)
         {
             token = tk;
             depth = 1;
         }
 
-        public Node(Token tk, Node lhs, Node rhs)
+        Node(Token tk, Node lhs, Node rhs)
         {
             token = tk;
             left = lhs;
@@ -27,7 +27,7 @@ public class SyntaxTree {
             depth = Math.max(left.depth, right.depth) + 1;
         }
 
-        public double evaluate()
+        double evaluate()
         {
             switch (token.type)
             {

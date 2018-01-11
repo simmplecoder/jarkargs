@@ -1,11 +1,12 @@
 package evaluator_tests;
+import evaluator.Lexer;
+import evaluator.LexicalErrorException;
 import evaluator.Token;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class TokenTest {
     static private final Map<String, Token.TokenType> answeredInput = new HashMap<>();
@@ -26,7 +27,8 @@ public class TokenTest {
     {
         for (Map.Entry<String, Token.TokenType> test: answeredInput.entrySet())
         {
-            Token tk = new Token(test.getKey());
+            Lexer lexer = new Lexer(test.getKey());
+            Token tk = lexer.tokenQueue().peek();
             Assert.assertTrue("Token was not recognized correctly",
                                 test.getValue() == tk.type && test.getKey().equals(tk.value));
         }
@@ -48,9 +50,9 @@ public class TokenTest {
         for (String input: wrongInputs)
         {
             try {
-                Token tk = new Token(input);
+                new Lexer(input);
             }
-            catch (IllegalArgumentException ex)
+            catch (LexicalErrorException ex)
             {
                 return;
             }
