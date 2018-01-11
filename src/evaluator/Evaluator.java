@@ -4,8 +4,8 @@ package evaluator;
 public class Evaluator {
     public static double evaluate(String expression)
     {
-
-
-        return 0;
+        Lexer lexer = new Lexer(expression);
+        SyntaxTree tree = new SyntaxTree(lexer.tokenQueue());
+        return tree.evaluate();
     }
 }

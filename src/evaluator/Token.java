@@ -47,4 +47,10 @@ public class Token {
 
         throw new LexicalErrorException("The term doesn't match any of the possible token types");
     }
+
+    public Token(String term, TokenType t)
+    {
+        value = term;
+        type = t;
+    }
 }

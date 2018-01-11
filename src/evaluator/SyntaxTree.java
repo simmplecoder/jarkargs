@@ -11,12 +11,12 @@ public class SyntaxTree {
         Token token;
         Node left;
         Node right;
+        int depth;
 
         public Node(Token tk)
         {
             token = tk;
-            left = null;
-            right = null;
+            depth = 1;
         }
 
         public Node(Token tk, Node lhs, Node rhs)
@@ -24,6 +24,7 @@ public class SyntaxTree {
             token = tk;
             left = lhs;
             right = rhs;
+            depth = Math.max(left.depth, right.depth) + 1;
         }
 
         public double evaluate()
