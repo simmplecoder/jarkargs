@@ -5,6 +5,7 @@ import evaluator.Token;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,5 +60,13 @@ public class TokenTest {
 
             Assert.fail("Incorrect sequence was recognized as a token");
         }
+    }
+
+    @Test
+    public void variableInputTests()
+    {
+        String input = "(abc + d) + 123 - 9";
+        Lexer lexer = new Lexer(input);
+        Assert.assertEquals("[(, abc, +, d, ), +, 123, -, 9]", Arrays.toString(lexer.tokenQueue().toArray()));
     }
 }

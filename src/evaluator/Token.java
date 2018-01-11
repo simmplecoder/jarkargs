@@ -3,6 +3,7 @@ package evaluator;
 public class Token {
     public enum TokenType
     {
+        Variable,
         Number,
         OpeningBracket,
         ClosingBracket,
@@ -19,5 +20,11 @@ public class Token {
     {
         value = term;
         type = t;
+    }
+
+    @Override
+    public String toString()
+    {
+        return value;
     }
 }

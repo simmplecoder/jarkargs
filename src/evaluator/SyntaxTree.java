@@ -1,22 +1,34 @@
 package evaluator;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 
 public class SyntaxTree {
+    enum Computable{
+        Yes,
+        No
+    }
+
     private class Node
     {
         Token token;
         Node left;
         Node right;
         int depth;
+        Computable computable;
+
 
         Node(Token tk)
         {
             token = tk;
             depth = 1;
+            if (tk.type == Token.TokenType.Variable)
+            {
+                computable = Computable.No;
+            }
+            else
+            {
+                computable = Computable.Yes;
+            }
         }
 
         Node(Token tk, Node lhs, Node rhs)
@@ -25,10 +37,26 @@ public class SyntaxTree {
             left = lhs;
             right = rhs;
             depth = Math.max(left.depth, right.depth) + 1;
+
+            if (left.computable == Computable.No || right.computable == Computable.No)
+            {
+                computable = Computable.No;
+            }
+            else
+            {
+                computable = Computable.Yes;
+            }
         }
 
         double evaluate()
         {
+            if (left != null && right != null
+                    && (left.token.type == Token.TokenType.Variable
+                        || right.token.type == Token.TokenType.Variable))
+            {
+                throw new SyntaxErrorException("Cannot evaluate, at least one variable is not substituted yet");
+            }
+
             switch (token.type)
             {
                 case Number:
@@ -48,6 +76,7 @@ public class SyntaxTree {
     }
 
     private Node root;
+    private Set<String> variablesNames = new HashSet<>();
 
     private static final Map<Token.TokenType, Integer> inversePrecedence = new HashMap<>();
     static {
@@ -75,6 +104,8 @@ public class SyntaxTree {
                     sweepUntilHigherPrecedence(prevExpressions, prevOps, currentToken);
                     prevOps.push(currentToken);
                     break;
+                case Variable:
+                    variablesNames.add(currentToken.value);
                 case Number:
                     prevExpressions.push(new Node(currentToken));
                     break;
@@ -150,5 +181,98 @@ public class SyntaxTree {
     public double evaluate()
     {
         return root.evaluate();
+    }
+
+    private Node findLeftmost()
+    {
+        Node current = root;
+        while (current.left != null)
+        {
+            current = current.left;
+        }
+        return current;
+    }
+
+    public Set<String> variables()
+    {
+        return variablesNames;
+    }
+
+    public boolean isComputable()
+    {
+        return root.computable == Computable.Yes;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        if (root != null) {
+            printSubtree(root, result);
+        }
+
+        return result.toString();
+    }
+
+    private void printSubtree(Node root, StringBuilder builder)
+    {
+        if (root.left != null)
+        {
+            printSubtree(root.left, builder);
+        }
+
+        builder.append(root.token.value);
+
+        if (root.right != null)
+        {
+            printSubtree(root.right, builder);
+        }
+    }
+
+    public void substitute(Map<String, Double> values)
+    {
+        substituteSubtree(root, values);
+        recheckSubtree(root);
+    }
+
+    private void substituteSubtree(Node root, Map<String, Double> values)
+    {
+        Double value = values.get(root.token.value);
+        if (value != null)
+        {
+            root.token.type = Token.TokenType.Number;
+            root.token.value = value.toString();
+            root.computable = Computable.Yes;
+        }
+
+        if (root.left != null)
+        {
+            substituteSubtree(root.left, values);
+        }
+
+        if (root.right != null)
+        {
+            substituteSubtree(root.right, values);
+        }
+    }
+
+    private void recheckSubtree(Node root)
+    {
+        if (root.left == null)
+        {
+            return;
+        }
+
+        recheckSubtree(root.left);
+        recheckSubtree(root.right);
+
+        if (root.left.computable == Computable.No || root.right.computable == Computable.No)
+        {
+            root.computable = Computable.No;
+        }
+        else
+        {
+            root.computable = Computable.Yes;
+        }
     }
 }

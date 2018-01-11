@@ -51,6 +51,31 @@ public class SyntaxTreeTest {
         }
     }
 
+    @Test
+    public void variableTests()
+    {
+        String expression = "abc+cde-2*myvar+urvar";
+        Lexer lexer = new Lexer(expression);
+        Assert.assertEquals(lexer.toString(), expression);
+        SyntaxTree tree = new SyntaxTree(lexer.tokenQueue());
+        Assert.assertEquals(tree.toString(), expression);
+        Assert.assertFalse(tree.isComputable());
+        System.out.println(tree.variables().toString());
+
+        Map<String, Double> values = new HashMap<>();
+        values.put("abc", 12.);
+        values.put("cde", 1.);
+        values.put("myvar", 1.);
+        //values.put("urvar", 1.);
+
+        tree.substitute(values);
+        System.out.println(tree.toString());
+
+//        Assert.assertTrue(tree.isComputable());
+//
+//        System.out.println(tree.evaluate());
+    }
+
     public static void main(String[] args)
     {
         String expression = "(1 + 2 -5 ) * 25";
